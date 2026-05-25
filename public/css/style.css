@@ -93,9 +93,12 @@ body {
 }
 
 .add-btn,
-.edit-btn,
 .delete-btn {
   background-color: #fe424d !important;
+  border: none !important;
+}
+
+.edit-btn {
   border: none !important;
 }
 
