@@ -1,10 +1,8 @@
 <% layout('/layouts/boilerplate') -%>
-  <body>
-    <h3>All Listing</h3> <br>
-    <!-- <form action="/listings/new" method="GET">
-      <button>New Listing</button>
-    </form> -->
-    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+<%- include("../includes/filters", { categoryFilters, showClearFilters }) %>
+  
+  <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+    <% if (allListing.length > 0) { %>
       <% for(let listing of allListing) { %>
         <a href="/listings/<%= listing._id %>" class="listing-link">
         <div class="card col listing-card">
@@ -13,11 +11,18 @@
           <div class="card-body">
             <p class="card-text">
               <b><%= listing.title %></b> <br>
-              &#8377;<%= listing.price.toLocaleString("en-IN") %> / night
+              &#8377;<%= listing.price.toLocaleString("en-IN") %>/night
             </p>
           </div>
         </div>
-      <% } %> 
-    </div>
-    </a>
-  </body>
+        </a>
+      <% } %>
+    <% } else { %>
+      <div class="col-12 mt-5">
+        <p class="text-center text-muted">
+          No listings found for this category. Try a different filter or 
+          <a href="/listings">view all listings</a>.
+        </p>
+      </div>
+    <% } %>
+  </div>

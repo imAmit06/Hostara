@@ -2,9 +2,39 @@ const Listing = require("../models/listing");
 const maptilerClient = require("@maptiler/client");
 maptilerClient.config.apiKey = process.env.MAP_API;
 
+const CATEGORY_FILTERS = [
+  { name: "Trending", iconClass: "fa-solid fa-fire" },
+  { name: "Rooms", iconClass: "fa-solid fa-bed" },
+  { name: "Iconic Cities", iconClass: "fa-solid fa-monument" },
+  { name: "Mountains", iconClass: "fa-solid fa-mountain" },
+  { name: "Castles", iconClass: "fa-brands fa-fort-awesome" },
+  { name: "Amazing Pools", iconClass: "fa-solid fa-person-swimming" },
+  { name: "Camping", iconClass: "fa-solid fa-campground" },
+  { name: "Farms", iconClass: "fa-solid fa-seedling" },
+  { name: "Arctic", iconClass: "fa-solid fa-snowman" },
+];
+
 module.exports.index = async (req, res) => {
-  const allListing = await Listing.find({});
-  res.render("listings/index.ejs", { allListing });
+  const { category } = req.query;
+  const activeCategory = CATEGORY_FILTERS.some(
+    (filter) => filter.name === category,
+  )
+    ? category
+    : null;
+  const filterQuery = activeCategory ? { category: activeCategory } : {};
+  const allListing = await Listing.find(filterQuery);
+
+  const categoryFilters = CATEGORY_FILTERS.map((filter) => ({
+    ...filter,
+    href: `/listings?category=${encodeURIComponent(filter.name)}`,
+    isActive: filter.name === activeCategory,
+  }));
+
+  res.render("listings/index.ejs", {
+    allListing,
+    categoryFilters,
+    showClearFilters: Boolean(activeCategory),
+  });
 };
 
 module.exports.renderNewForm = (req, res) => {

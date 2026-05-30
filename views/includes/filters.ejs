@@ -1,0 +1,22 @@
+<nav class="listing-filters" aria-label="Filter listings by category">
+  <ul id="filters" class="filter-list">
+    <% categoryFilters.forEach((filter) => { %>
+      <li class="filter-item">
+        <a
+          href="<%= filter.href %>"
+          class="filter <%= filter.isActive ? 'active' : '' %>"
+          <% if (filter.isActive) { %>aria-current="page"<% } %>
+        >
+          <span class="filter-icon" aria-hidden="true">
+            <i class="<%= filter.iconClass %>"></i>
+          </span>
+          <span class="filter-label"><%= filter.name %></span>
+        </a>
+      </li>
+    <% }) %>
+  </ul>
+
+  <% if (showClearFilters) { %>
+    <a href="/listings" class="filter-clear-btn">Clear Filters</a>
+  <% } %>
+</nav>
