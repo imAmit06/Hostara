@@ -1,4 +1,6 @@
 const Listing = require("../models/listing");
+const maptilerClient = require("@maptiler/client");
+maptilerClient.config.apiKey = process.env.MAP_API;
 
 module.exports.index = async (req, res) => {
   const allListing = await Listing.find({});
@@ -23,15 +25,24 @@ module.exports.showListing = async (req, res) => {
     req.flash("error", "Listing does not exist.");
     return res.redirect("/listings");
   }
-  res.render("listings/show.ejs", { listing });
+  res.render("listings/show.ejs", { listing, MAP_API: process.env.MAP_API });
 };
 
 module.exports.createListing = async (req, res, next) => {
   let url = req.file.path;
   let filename = req.file.filename;
+  const result = await maptilerClient.geocoding.forward(
+    req.body.listing.location,
+    { limit: 1 },
+  );
+  const coords = result.features[0].geometry.coordinates;
   const newListing = new Listing(req.body.listing);
   newListing.owner = req.user._id;
   newListing.image = { url, filename };
+  newListing.geometry = {
+    type: "Point",
+    coordinates: coords,
+  };
   await newListing.save();
   req.flash("success", "New Listing Created!");
   res.redirect("/listings");
