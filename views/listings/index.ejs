@@ -20,7 +20,7 @@
     <% } else { %>
       <div class="col-12 mt-5">
         <p class="text-center text-muted">
-          No listings found for this category. Try a different filter or 
+          No listings found<% if (searchQuery) { %> for "<%= searchQuery %>"<% } %><% if (activeCategory) { %> in <%= activeCategory %><% } %>. Try a different search or 
           <a href="/listings">view all listings</a>.
         </p>
       </div>

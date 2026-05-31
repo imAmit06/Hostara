@@ -84,6 +84,8 @@ app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   res.locals.currUser = req.user;
+  res.locals.activeCategory = null;
+  res.locals.searchQuery = typeof req.query.search === "string" ? req.query.search : "";
   next();
 });
 
@@ -107,5 +109,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is watching localhost:${port}`);
+  console.log(`Server is watching http://localhost:${port}`);
 });

@@ -14,26 +14,52 @@ const CATEGORY_FILTERS = [
   { name: "Arctic", iconClass: "fa-solid fa-snowman" },
 ];
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 module.exports.index = async (req, res) => {
-  const { category } = req.query;
+  const { category, search } = req.query;
   const activeCategory = CATEGORY_FILTERS.some(
     (filter) => filter.name === category,
   )
     ? category
     : null;
-  const filterQuery = activeCategory ? { category: activeCategory } : {};
+  const searchQuery = typeof search === "string" ? search.trim() : "";
+  const filterQuery = {};
+
+  if (activeCategory) {
+    filterQuery.category = activeCategory;
+  }
+
+  if (searchQuery) {
+    const searchRegex = new RegExp(escapeRegex(searchQuery), "i");
+    filterQuery.$or = [
+      { title: searchRegex },
+      { location: searchRegex },
+      { country: searchRegex },
+    ];
+  }
+
   const allListing = await Listing.find(filterQuery);
 
-  const categoryFilters = CATEGORY_FILTERS.map((filter) => ({
-    ...filter,
-    href: `/listings?category=${encodeURIComponent(filter.name)}`,
-    isActive: filter.name === activeCategory,
-  }));
+  const categoryFilters = CATEGORY_FILTERS.map((filter) => {
+    const params = new URLSearchParams({ category: filter.name });
+    if (searchQuery) {
+      params.set("search", searchQuery);
+    }
+
+    return {
+      ...filter,
+      href: `/listings?${params.toString()}`,
+      isActive: filter.name === activeCategory,
+    };
+  });
 
   res.render("listings/index.ejs", {
     allListing,
     categoryFilters,
-    showClearFilters: Boolean(activeCategory),
+    activeCategory,
+    searchQuery,
+    showClearFilters: Boolean(activeCategory || searchQuery),
   });
 };
 
