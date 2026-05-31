@@ -22,7 +22,7 @@ const userRouter = require("./routes/user.js");
 //App
 const app = express();
 const port = 8080;
-const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
+const MONGO_URL = process.env.MONGODB_URL;
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -52,7 +52,7 @@ async function main() {
 const store = MongoStore.create({
   mongoUrl: MONGO_URL,
   crypto: {
-    secret: "mysupersecretcode",
+    secret: process.env.SECRET,
   },
   touchAfter: 24 * 3600,
 });
@@ -60,7 +60,7 @@ const store = MongoStore.create({
 //Sessions & Flash
 const sessionOption = {
   store,
-  secret: "mysupersecretcode",
+  secret: process.env.SECRET,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -85,7 +85,8 @@ app.use((req, res, next) => {
   res.locals.error = req.flash("error");
   res.locals.currUser = req.user;
   res.locals.activeCategory = null;
-  res.locals.searchQuery = typeof req.query.search === "string" ? req.query.search : "";
+  res.locals.searchQuery =
+    typeof req.query.search === "string" ? req.query.search : "";
   next();
 });
 
